@@ -1,4 +1,4 @@
-import pool from '../config/db.js';
+import ActivityRepository from '../repositories/activity.repository.js';
 
 /**
  * Logs an administrative activity to the database.
@@ -10,15 +10,9 @@ import pool from '../config/db.js';
  */
 export const logActivity = async (adminId, adminNama, aksi, modul, detail) => {
     try {
-        const queryText = `
-            INSERT INTO aktivitas (admin_id, admin_nama, aksi, modul, detail)
-            VALUES ($1, $2, $3, $4, $5)
-        `;
-        const values = [adminId, adminNama, aksi, modul, detail];
-        await pool.query(queryText, values);
+        await ActivityRepository.create({ adminId, adminNama, aksi, modul, detail });
     } catch (err) {
         console.error('Error logging activity:', err.message);
-        // Note: We don't throw error here to avoid breaking the main operation if logging fails
     }
 };
 

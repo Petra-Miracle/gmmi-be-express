@@ -44,7 +44,7 @@ app.get("/", (req, res) => {
 });
 
 // app.use('/auth', authRoutes);
-// app.use('/api/admin', adminRoutes);
+app.use('/api/admin', adminRoutes);
 // app.use('/api/admins', adminRoutes); // Support plural
 // app.use('/api/super-admin', adminRoutes); // Support super-admin prefix
 // app.use('/api/announcements', pengumumanRoutes);
