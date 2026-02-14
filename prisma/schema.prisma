@@ -30,7 +30,7 @@ enum SubBidangPenatalayananEnum {
 // ==================== MODELS ====================
 
 model users {
-  id         Int       @id @default(autoincrement())
+  id         String    @id @default(dbgenerated("'usr_' || replace(gen_random_uuid()::text, '-', '')"))
   nama       String    @db.VarChar(100)
   email      String    @unique @db.VarChar(100)
   password   String    @db.Text
@@ -48,7 +48,7 @@ model users {
 }
 
 model admins {
-  id            Int       @id @default(autoincrement())
+  id            String    @id @default(dbgenerated("'adm_' || replace(gen_random_uuid()::text, '-', '')"))
   nama          String    @db.VarChar(100)
   email         String    @unique @db.VarChar(150)
   password_hash String    @db.Text
@@ -63,7 +63,7 @@ model admins {
 }
 
 model agenda {
-  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id               String    @id @default(dbgenerated("'agd_' || replace(gen_random_uuid()::text, '-', '')"))
   kegiatan         String    @db.VarChar(150)
   tanggal          DateTime  @db.Date
   jam_mulai        DateTime  @db.Time(6)
@@ -72,14 +72,14 @@ model agenda {
   penanggung_jawab String    @db.VarChar(150)
   status           String?   @default("aktif") @db.VarChar(20)
   is_publish       Boolean?  @default(true)
-  created_by       String?   @db.Uuid
+  created_by       String?
   created_at       DateTime? @default(now()) @db.Timestamp(6)
   updated_at       DateTime? @default(now()) @db.Timestamp(6)
 }
 
 model aktivitas {
-  id         Int       @id @default(autoincrement())
-  admin_id   Int?
+  id         String    @id @default(dbgenerated("'akt_' || replace(gen_random_uuid()::text, '-', '')"))
+  admin_id   String?
   admin_nama String?   @db.VarChar(100)
   aksi       String?   @db.VarChar(50)
   modul      String?   @db.VarChar(50)
@@ -91,23 +91,23 @@ model aktivitas {
 }
 
 model announcements {
-  id         Int       @id @default(autoincrement())
+  id         String    @id @default(dbgenerated("'ann_' || replace(gen_random_uuid()::text, '-', '')"))
   isi        String    @db.Text
   status     String?   @default("draft") @db.VarChar(20)
   tanggal    DateTime? @default(now()) @db.Timestamp(6)
   created_at DateTime? @default(now()) @db.Timestamp(6)
-  created_by Int?
+  created_by String?
 
   // Relations
   admin admins? @relation(fields: [created_by], references: [id])
 }
 
 model arsip_bulanan {
-  id         Int       @id @default(autoincrement())
+  id         String    @id @default(dbgenerated("'arb_' || replace(gen_random_uuid()::text, '-', '')"))
   bulan      Int
   tahun      Int
   data       Json?
-  created_by Int?
+  created_by String?
   created_at DateTime? @default(now()) @db.Timestamp(6)
 
   // Relations
@@ -115,7 +115,7 @@ model arsip_bulanan {
 }
 
 model carousel_slides {
-  id          Int       @id @default(autoincrement())
+  id          String    @id @default(dbgenerated("'crs_' || replace(gen_random_uuid()::text, '-', '')"))
   title       String    @db.VarChar(255)
   subtitle    String?   @db.Text
   quote       String?   @db.Text
@@ -130,7 +130,7 @@ model carousel_slides {
 }
 
 model jadwal_ibadah {
-  id           Int       @id @default(autoincrement())
+  id           String    @id @default(dbgenerated("'jib_' || replace(gen_random_uuid()::text, '-', '')"))
   jenis_ibadah String    @db.VarChar(50)
   tanggal      DateTime  @db.Date
   jam          DateTime  @db.Time(6)
@@ -138,7 +138,7 @@ model jadwal_ibadah {
   rumah_jemaat String?   @db.VarChar(200)
   bulan        Int
   tahun        Int
-  created_by   Int?
+  created_by   String?
   created_at   DateTime? @default(now()) @db.Timestamp(6)
 
   // Relations
@@ -147,7 +147,7 @@ model jadwal_ibadah {
 }
 
 model jadwal_pelayanan {
-  id            Int       @id @default(autoincrement())
+  id            String    @id @default(dbgenerated("'jpl_' || replace(gen_random_uuid()::text, '-', '')"))
   nama_kegiatan String    @db.VarChar(255)
   tanggal       DateTime  @db.Date
   pelayan       Json?
@@ -156,18 +156,18 @@ model jadwal_pelayanan {
 }
 
 model jemaat {
-  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                  String    @id @default(dbgenerated("'jmt_' || replace(gen_random_uuid()::text, '-', '')"))
   nama                String    @db.VarChar(150)
   tanggal_lahir       DateTime? @db.Date
   jenis_kelamin       String?   @db.Char(1)
   pendidikan_terakhir String?   @db.VarChar(10)
   kategorial          String?   @db.VarChar(20)
-  sektor_id           String    @db.Uuid
+  sektor_id           String
   keterangan          String?   @db.Text
   created_at          DateTime? @default(now()) @db.Timestamp(6)
   deleted_at          DateTime? @db.Timestamp(6)
   tempat_lahir        String?   @db.VarChar(100)
-  pekerjaan_id        Int?
+  pekerjaan_id        String?
   pekerjaan           String?   @db.VarChar(30)
 
   // Relations
@@ -178,10 +178,10 @@ model jemaat {
 }
 
 model jemaat_history {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  jemaat_id  String?   @db.Uuid
+  id         String    @id @default(dbgenerated("'jmh_' || replace(gen_random_uuid()::text, '-', '')"))
+  jemaat_id  String?
   perubahan  String?   @db.Text
-  changed_by String?   @db.Uuid
+  changed_by String?
   changed_at DateTime? @default(now()) @db.Timestamp(6)
 
   // Relations
@@ -189,8 +189,8 @@ model jemaat_history {
 }
 
 model jemaat_sakramen {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  jemaat_id  String?   @unique @db.Uuid
+  id         String    @id @default(dbgenerated("'jms_' || replace(gen_random_uuid()::text, '-', '')"))
+  jemaat_id  String?   @unique
   bpts       Boolean?  @default(false)
   sidi       Boolean?  @default(false)
   nikah      Boolean?  @default(false)
@@ -202,11 +202,11 @@ model jemaat_sakramen {
 }
 
 model kegiatan_bulanan {
-  id         Int       @id @default(autoincrement())
+  id         String    @id @default(dbgenerated("'kgb_' || replace(gen_random_uuid()::text, '-', '')"))
   bulan      Int
   tahun      Int
   deskripsi  String?   @db.Text
-  created_by Int?
+  created_by String?
   created_at DateTime? @default(now()) @db.Timestamp(6)
 
   // Relations
@@ -214,7 +214,7 @@ model kegiatan_bulanan {
 }
 
 model keuangan_laporan {
-  id                BigInt    @id @default(autoincrement())
+  id                String    @id @default(dbgenerated("'klp_' || replace(gen_random_uuid()::text, '-', '')"))
   periode_awal      DateTime  @db.Date
   periode_akhir     DateTime  @db.Date
   tanggal_transaksi DateTime  @db.Date
@@ -225,26 +225,26 @@ model keuangan_laporan {
   kas_pengeluaran   Decimal?  @default(0) @db.Decimal(15, 2)
   bank_debit        Decimal?  @default(0) @db.Decimal(15, 2)
   bank_kredit       Decimal?  @default(0) @db.Decimal(15, 2)
-  created_by        BigInt?
+  created_by        String?
   created_at        DateTime? @default(now()) @db.Timestamp(6)
 }
 
 model laporan_keuangan {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id              String    @id @default(dbgenerated("'lkn_' || replace(gen_random_uuid()::text, '-', '')"))
   tanggal         DateTime  @db.Date
   keterangan      String    @db.Text
   kas_penerimaan  Decimal?  @default(0) @db.Decimal(15, 2)
   kas_pengeluaran Decimal?  @default(0) @db.Decimal(15, 2)
   bank_debit      Decimal?  @default(0) @db.Decimal(15, 2)
   bank_kredit     Decimal?  @default(0) @db.Decimal(15, 2)
-  created_by      String?   @db.Uuid
+  created_by      String?
   created_at      DateTime? @default(now()) @db.Timestamp(6)
   updated_at      DateTime? @default(now()) @db.Timestamp(6)
 }
 
 model log_notifikasi {
-  id         Int       @id @default(autoincrement())
-  jadwal_id  Int?
+  id         String    @id @default(dbgenerated("'lgn_' || replace(gen_random_uuid()::text, '-', '')"))
+  jadwal_id  String?
   no_hp      String?   @db.VarChar(20)
   status     String?   @default("terkirim") @db.VarChar(10)
   created_at DateTime? @default(now()) @db.Timestamp(6)
@@ -254,7 +254,7 @@ model log_notifikasi {
 }
 
 model pekerjaan {
-  id             Int       @id @default(autoincrement())
+  id             String    @id @default(dbgenerated("'pkj_' || replace(gen_random_uuid()::text, '-', '')"))
   nama_pekerjaan String    @unique @db.VarChar(100)
   created_at     DateTime? @default(now()) @db.Timestamp(6)
 
@@ -263,10 +263,10 @@ model pekerjaan {
 }
 
 model pengumuman {
-  id         Int       @id @default(autoincrement())
+  id         String    @id @default(dbgenerated("'pgm_' || replace(gen_random_uuid()::text, '-', '')"))
   judul      String    @db.VarChar(200)
   isi        String    @db.Text
-  created_by Int?
+  created_by String?
   created_at DateTime? @default(now()) @db.Timestamp(6)
 
   // Relations
@@ -274,7 +274,7 @@ model pengumuman {
 }
 
 model pewartaan {
-  id             Int       @id @default(autoincrement())
+  id             String    @id @default(dbgenerated("'pwt_' || replace(gen_random_uuid()::text, '-', '')"))
   judul          String    @db.VarChar(255)
   tanggal_ibadah DateTime  @db.Date
   hari           String?   @db.VarChar(50)
@@ -298,8 +298,8 @@ model pewartaan {
 }
 
 model pewartaan_tata_ibadah {
-  id           Int     @id @default(autoincrement())
-  pewartaan_id Int?
+  id           String  @id @default(dbgenerated("'pti_' || replace(gen_random_uuid()::text, '-', '')"))
+  pewartaan_id String?
   urutan       Int?
   nama_bagian  String? @db.VarChar(255)
   keterangan   String? @db.Text
@@ -311,8 +311,8 @@ model pewartaan_tata_ibadah {
 }
 
 model pewartaan_pokok_doa {
-  id           Int     @id @default(autoincrement())
-  pewartaan_id Int?
+  id           String  @id @default(dbgenerated("'ppd_' || replace(gen_random_uuid()::text, '-', '')"))
+  pewartaan_id String?
   kategori     String? @db.VarChar(255)
   keterangan   String? @db.Text
 
@@ -321,8 +321,8 @@ model pewartaan_pokok_doa {
 }
 
 model pewartaan_jemaat_ultah {
-  id           Int       @id @default(autoincrement())
-  pewartaan_id Int?
+  id           String    @id @default(dbgenerated("'pju_' || replace(gen_random_uuid()::text, '-', '')"))
+  pewartaan_id String?
   tanggal      DateTime? @db.Date
   nama_jemaat  String?   @db.VarChar(255)
   keterangan   String?   @db.Text
@@ -332,8 +332,8 @@ model pewartaan_jemaat_ultah {
 }
 
 model pewartaan_jemaat_sakit {
-  id           Int     @id @default(autoincrement())
-  pewartaan_id Int?
+  id           String  @id @default(dbgenerated("'pjs_' || replace(gen_random_uuid()::text, '-', '')"))
+  pewartaan_id String?
   nama_jemaat  String? @db.VarChar(255)
   keterangan   String? @db.Text
 
@@ -342,8 +342,8 @@ model pewartaan_jemaat_sakit {
 }
 
 model pewartaan_pemulihan {
-  id           Int     @id @default(autoincrement())
-  pewartaan_id Int?
+  id           String  @id @default(dbgenerated("'ppm_' || replace(gen_random_uuid()::text, '-', '')"))
+  pewartaan_id String?
   nama_jemaat  String? @db.VarChar(255)
   keterangan   String? @db.Text
 
@@ -352,8 +352,8 @@ model pewartaan_pemulihan {
 }
 
 model pewartaan_lansia {
-  id           Int     @id @default(autoincrement())
-  pewartaan_id Int?
+  id           String  @id @default(dbgenerated("'pla_' || replace(gen_random_uuid()::text, '-', '')"))
+  pewartaan_id String?
   nama_jemaat  String? @db.VarChar(255)
   keterangan   String? @db.Text
 
@@ -362,8 +362,8 @@ model pewartaan_lansia {
 }
 
 model pewartaan_info_ibadah {
-  id           Int       @id @default(autoincrement())
-  pewartaan_id Int?
+  id           String    @id @default(dbgenerated("'pii_' || replace(gen_random_uuid()::text, '-', '')"))
+  pewartaan_id String?
   tanggal      DateTime? @db.Date
   jam          String?   @db.VarChar(50)
   jenis_ibadah String?   @db.VarChar(255)
@@ -375,8 +375,8 @@ model pewartaan_info_ibadah {
 }
 
 model pewartaan_pelayanan_sektor {
-  id           Int     @id @default(autoincrement())
-  pewartaan_id Int?
+  id           String  @id @default(dbgenerated("'pps_' || replace(gen_random_uuid()::text, '-', '')"))
+  pewartaan_id String?
   nomor_sektor String? @db.VarChar(50)
   tempat       String? @db.VarChar(255)
   pemimpin     String? @db.VarChar(255)
@@ -388,8 +388,8 @@ model pewartaan_pelayanan_sektor {
 }
 
 model pewartaan_pelayanan_kategorial {
-  id                 Int     @id @default(autoincrement())
-  pewartaan_id       Int?
+  id                 String  @id @default(dbgenerated("'ppk_' || replace(gen_random_uuid()::text, '-', '')"))
+  pewartaan_id       String?
   tanggal_waktu      String? @db.VarChar(100)
   kategori_pelayanan String? @db.VarChar(255)
   tempat             String? @db.VarChar(255)
@@ -401,7 +401,7 @@ model pewartaan_pelayanan_kategorial {
 }
 
 model program_kegiatan_gereja {
-  id                Int       @id @default(autoincrement())
+  id                String    @id @default(dbgenerated("'pkg_' || replace(gen_random_uuid()::text, '-', '')"))
   bidang            String    @db.VarChar(50)
   sub_bidang        String?   @db.VarChar(100)
   nama_program      String    @db.VarChar(255)
@@ -415,7 +415,7 @@ model program_kegiatan_gereja {
 }
 
 model renungan_mingguan {
-  id         Int       @id @default(autoincrement())
+  id         String    @id @default(dbgenerated("'rnm_' || replace(gen_random_uuid()::text, '-', '')"))
   judul      String    @db.VarChar(255)
   isi        String    @db.Text
   tanggal    DateTime? @default(dbgenerated("CURRENT_DATE")) @db.Date
@@ -424,7 +424,7 @@ model renungan_mingguan {
 }
 
 model sectors {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id          String    @id @default(dbgenerated("'sct_' || replace(gen_random_uuid()::text, '-', '')"))
   nama_sektor String    @db.VarChar(100)
   alamat      String?   @db.Text
   no_hp       String    @db.VarChar(20)
@@ -435,7 +435,7 @@ model sectors {
 }
 
 model sejarah {
-  id                Int       @id @default(autoincrement())
+  id                String    @id @default(dbgenerated("'sjr_' || replace(gen_random_uuid()::text, '-', '')"))
   judul             String    @db.VarChar(255)
   tanggal_peristiwa DateTime? @db.Date
   deskripsi         String    @db.Text
@@ -445,9 +445,9 @@ model sejarah {
 }
 
 model sejarah_gereja {
-  id         Int       @id @default(autoincrement())
+  id         String    @id @default(dbgenerated("'sjg_' || replace(gen_random_uuid()::text, '-', '')"))
   konten     String    @db.Text
-  updated_by Int?
+  updated_by String?
   updated_at DateTime? @default(now()) @db.Timestamp(6)
 
   // Relations
@@ -457,14 +457,14 @@ model sejarah_gereja {
 // ==================== WARTA IBADAH GROUP ====================
 
 model warta_ibadah {
-  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id           String    @id @default(dbgenerated("'wib_' || replace(gen_random_uuid()::text, '-', '')"))
   judul_warta  String    @db.VarChar(255)
   hari         String?   @db.VarChar(50)
   tanggal      DateTime  @db.Date
   tempat       String?   @db.VarChar(150)
   ayat_firman  String?   @db.VarChar(255)
   tema_khotbah String?   @db.Text
-  created_by   String?   @db.Uuid
+  created_by   String?
   created_at   DateTime? @default(now()) @db.Timestamp(6)
   updated_at   DateTime? @default(now()) @db.Timestamp(6)
 
@@ -481,8 +481,8 @@ model warta_ibadah {
 }
 
 model warta_tata_ibadah {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  warta_id    String?   @db.Uuid
+  id          String    @id @default(dbgenerated("'wti_' || replace(gen_random_uuid()::text, '-', '')"))
+  warta_id    String?
   urutan      Int
   nama_bagian String?   @db.VarChar(150)
   keterangan  String?   @db.VarChar(100)
@@ -495,8 +495,8 @@ model warta_tata_ibadah {
 }
 
 model warta_pokok_doa {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  warta_id   String? @db.Uuid
+  id         String  @id @default(dbgenerated("'wpd_' || replace(gen_random_uuid()::text, '-', '')"))
+  warta_id   String?
   kategori   String? @db.VarChar(100)
   keterangan String? @db.Text
 
@@ -505,8 +505,8 @@ model warta_pokok_doa {
 }
 
 model warta_ulang_tahun {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  warta_id   String?   @db.Uuid
+  id         String    @id @default(dbgenerated("'wut_' || replace(gen_random_uuid()::text, '-', '')"))
+  warta_id   String?
   tanggal    DateTime? @db.Date
   nama       String?   @db.VarChar(150)
   keterangan String?   @db.Text
@@ -516,8 +516,8 @@ model warta_ulang_tahun {
 }
 
 model warta_jemaat_sakit {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  warta_id   String? @db.Uuid
+  id         String  @id @default(dbgenerated("'wjs_' || replace(gen_random_uuid()::text, '-', '')"))
+  warta_id   String?
   nama       String? @db.VarChar(150)
   keterangan String? @db.Text
 
@@ -526,8 +526,8 @@ model warta_jemaat_sakit {
 }
 
 model warta_pemulihan {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  warta_id   String? @db.Uuid
+  id         String  @id @default(dbgenerated("'wpm_' || replace(gen_random_uuid()::text, '-', '')"))
+  warta_id   String?
   nama       String? @db.VarChar(150)
   keterangan String? @db.Text
 
@@ -536,8 +536,8 @@ model warta_pemulihan {
 }
 
 model warta_lansia {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  warta_id   String? @db.Uuid
+  id         String  @id @default(dbgenerated("'wln_' || replace(gen_random_uuid()::text, '-', '')"))
+  warta_id   String?
   nama       String? @db.VarChar(150)
   keterangan String? @db.Text
 
@@ -546,8 +546,8 @@ model warta_lansia {
 }
 
 model warta_informasi_ibadah {
-  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  warta_id     String?   @db.Uuid
+  id           String    @id @default(dbgenerated("'wii_' || replace(gen_random_uuid()::text, '-', '')"))
+  warta_id     String?
   tanggal      DateTime? @db.Date
   jam          String?   @db.VarChar(20)
   jenis_ibadah String?   @db.VarChar(100)
@@ -559,8 +559,8 @@ model warta_informasi_ibadah {
 }
 
 model warta_pelayanan_sektor {
-  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  warta_id String? @db.Uuid
+  id       String  @id @default(dbgenerated("'wps_' || replace(gen_random_uuid()::text, '-', '')"))
+  warta_id String?
   sektor   String? @db.VarChar(50)
   tempat   String? @db.VarChar(150)
   pemimpin String? @db.VarChar(100)
@@ -572,8 +572,8 @@ model warta_pelayanan_sektor {
 }
 
 model warta_pelayanan_kategorial {
-  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  warta_id     String? @db.Uuid
+  id           String  @id @default(dbgenerated("'wpk_' || replace(gen_random_uuid()::text, '-', '')"))
+  warta_id     String?
   hari_tanggal String? @db.VarChar(100)
   kategori     String? @db.VarChar(100)
   tempat       String? @db.VarChar(150)
