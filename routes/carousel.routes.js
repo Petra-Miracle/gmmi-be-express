@@ -1,5 +1,5 @@
 import express from 'express';
-import CarouselController from '../controllers/carousel.controllers.js';
+import CarouselController from '../controllers/carousel.controller.js';
 import { authenticateToken } from '../middlewares/auth.middleware.js';
 import { isSuperAdmin } from '../middlewares/role.middleware.js';
 import upload from '../middlewares/upload.middleware.js';

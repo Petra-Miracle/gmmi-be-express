@@ -6,7 +6,6 @@ import helmet from "helmet";
 
 import authRoutes from "./routes/auth.routes.js";
 import adminRoutes from "./routes/admin.route.js";
-import dashboardRoutes from "./routes/dashboard.routes.js";
 import pengumumanRoutes from "./routes/pengumuman.routes.js";
 import wartaRoutes from "./routes/warta.routes.js";
 import ibadahRoutes from "./routes/ibadah.routes.js";
@@ -32,9 +31,6 @@ app.use(
 );
 app.use(express.json());
 
-// // Note: Local file logging removed for Vercel compatibility
-// app.use('/uploads', express.static('uploads'));
-
 app.get("/ping", (req, res) => {
   res.json({ pong: true, time: new Date().toISOString() });
 });
@@ -45,8 +41,8 @@ app.get("/", (req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/admins', adminRoutes); // Support plural
-app.use('/api/super-admin', adminRoutes); // Support super-admin prefix
+app.use('/api/admins', adminRoutes);
+app.use('/api/super-admin', adminRoutes);
 app.use('/api/announcements', pengumumanRoutes);
 app.use('/api/warta', wartaRoutes);
 app.use('/api/jadwal', ibadahRoutes);
@@ -59,9 +55,6 @@ app.use('/api/carousel', carouselRoutes);
 app.use('/api/jemaat', jemaatRoutes);
 app.use('/api/pekerjaan', pekerjaanRoutes);
 app.use('/api/sejarah', sejarahRoutes);
-
-// // Placeholder routes for frontend services
-// app.use('/', dashboardRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

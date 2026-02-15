@@ -1,22 +1,16 @@
 import express from 'express';
-import {
-    getAllPekerjaan,
-    getPekerjaanById,
-    createPekerjaan,
-    updatePekerjaan,
-    deletePekerjaan
-} from '../controllers/pekerjaan.controllers.js';
+import PekerjaanController from '../controllers/pekerjaan.controller.js';
 import { authenticateToken } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
 // Public routes (bisa diakses siapa saja yang sudah login)
-router.get('/', authenticateToken, getAllPekerjaan);
-router.get('/:id', authenticateToken, getPekerjaanById);
+router.get('/', authenticateToken, PekerjaanController.getAll);
+router.get('/:id', authenticateToken, PekerjaanController.getById);
 
 // Admin only routes
-router.post('/', authenticateToken, createPekerjaan);
-router.put('/:id', authenticateToken, updatePekerjaan);
-router.delete('/:id', authenticateToken, deletePekerjaan);
+router.post('/', authenticateToken, PekerjaanController.create);
+router.put('/:id', authenticateToken, PekerjaanController.update);
+router.delete('/:id', authenticateToken, PekerjaanController.delete);
 
 export default router;

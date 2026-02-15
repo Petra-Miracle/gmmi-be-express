@@ -1,6 +1,6 @@
 
 import express from 'express';
-import RenunganController from '../controllers/renungan.controllers.js';
+import RenunganController from '../controllers/renungan.controller.js';
 import { authenticateToken } from '../middlewares/auth.middleware.js';
 import { isSuperAdmin } from '../middlewares/role.middleware.js';
 import upload from '../middlewares/upload.middleware.js';

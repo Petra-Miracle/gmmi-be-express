@@ -1,5 +1,5 @@
 import express from 'express';
-import JemaatController from '../controllers/jemaat.controllers.js';
+import JemaatController from '../controllers/jemaat.controller.js';
 import { authenticateToken } from '../middlewares/auth.middleware.js';
 import { isSuperAdmin } from '../middlewares/role.middleware.js';
 

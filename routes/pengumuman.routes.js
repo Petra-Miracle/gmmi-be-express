@@ -1,5 +1,5 @@
 import express from 'express';
-import PengumumanController from '../controllers/pengumuman.controllers.js';
+import PengumumanController from '../controllers/pengumuman.controller.js';
 import { authenticateToken } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();

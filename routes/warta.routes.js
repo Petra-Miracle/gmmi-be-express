@@ -1,5 +1,5 @@
 import express from 'express';
-import WartaController from '../controllers/warta.controllers.js';
+import WartaController from '../controllers/warta.controller.js';
 import { authenticateToken } from '../middlewares/auth.middleware.js';
 import upload from '../middlewares/upload.middleware.js';
 

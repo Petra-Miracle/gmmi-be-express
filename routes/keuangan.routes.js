@@ -1,5 +1,5 @@
 import express from 'express';
-import KeuanganController from '../controllers/keuangan.controllers.js';
+import KeuanganController from '../controllers/keuangan.controller.js';
 import { authenticateToken } from '../middlewares/auth.middleware.js';
 import { isSuperAdmin } from '../middlewares/role.middleware.js';
 

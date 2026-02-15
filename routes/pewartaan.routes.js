@@ -1,5 +1,5 @@
 import express from 'express';
-import PewartaanController from '../controllers/pewartaan.controllers.js';
+import PewartaanController from '../controllers/pewartaan.controller.js';
 import { authenticateToken } from '../middlewares/auth.middleware.js';
 import { isSuperAdmin } from '../middlewares/role.middleware.js';
 

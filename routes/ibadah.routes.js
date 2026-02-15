@@ -1,5 +1,5 @@
 import express from 'express';
-import JadwalController from '../controllers/ibadah.controllers.js';
+import JadwalController from '../controllers/ibadah.controller.js';
 import { authenticateToken } from '../middlewares/auth.middleware.js';
 import { isSuperAdmin } from '../middlewares/role.middleware.js';
 
