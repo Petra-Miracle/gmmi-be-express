@@ -44,21 +44,21 @@ class PewartaanRepository {
                 ayat_firman,
                 tema_khotbah,
                 status: status || 'draft',
-                pewartaan_tata_ibadah: { create: tata_ibadah },
-                pewartaan_pokok_doa: { create: pokok_doa },
-                pewartaan_jemaat_ultah: {
-                    create: jemaat_ultah?.map(u => ({ ...u, tanggal: new Date(u.tanggal) }))
-                },
-                pewartaan_jemaat_sakit: { create: jemaat_sakit },
-                pewartaan_pemulihan: { create: pemulihan },
-                pewartaan_lansia: { create: lansia },
-                pewartaan_info_ibadah: {
-                    create: info_ibadah?.map(i => ({ ...i, tanggal: new Date(i.tanggal) }))
-                },
-                pewartaan_pelayanan_sektor: { create: pelayanan_sektor },
-                pewartaan_pelayanan_kategorial: {
-                    create: pelayanan_kategorial?.map(p => ({ ...p, tanggal_waktu: new Date(p.tanggal_waktu) }))
-                }
+                tata_ibadah: tata_ibadah ? { create: tata_ibadah } : undefined,
+                pokok_doa: pokok_doa ? { create: pokok_doa } : undefined,
+                jemaat_ultah: jemaat_ultah ? {
+                    create: jemaat_ultah.map(u => ({ ...u, tanggal: new Date(u.tanggal) }))
+                } : undefined,
+                jemaat_sakit: jemaat_sakit ? { create: jemaat_sakit } : undefined,
+                pemulihan: pemulihan ? { create: pemulihan } : undefined,
+                lansia: lansia ? { create: lansia } : undefined,
+                info_ibadah: info_ibadah ? {
+                    create: info_ibadah.map(i => ({ ...i, tanggal: new Date(i.tanggal) }))
+                } : undefined,
+                pelayanan_sektor: pelayanan_sektor ? { create: pelayanan_sektor } : undefined,
+                pelayanan_kategorial: pelayanan_kategorial ? {
+                    create: pelayanan_kategorial.map(p => ({ ...p, tanggal_waktu: new Date(p.tanggal_waktu) }))
+                } : undefined
             }
         });
     }
@@ -92,21 +92,21 @@ class PewartaanRepository {
                     ayat_firman,
                     tema_khotbah,
                     status,
-                    pewartaan_tata_ibadah: { create: tata_ibadah },
-                    pewartaan_pokok_doa: { create: pokok_doa },
-                    pewartaan_jemaat_ultah: {
-                        create: jemaat_ultah?.map(u => ({ ...u, tanggal: new Date(u.tanggal) }))
-                    },
-                    pewartaan_jemaat_sakit: { create: jemaat_sakit },
-                    pewartaan_pemulihan: { create: pemulihan },
-                    pewartaan_lansia: { create: lansia },
-                    pewartaan_info_ibadah: {
-                        create: info_ibadah?.map(i => ({ ...i, tanggal: new Date(i.tanggal) }))
-                    },
-                    pewartaan_pelayanan_sektor: { create: pelayanan_sektor },
-                    pewartaan_pelayanan_kategorial: {
-                        create: pelayanan_kategorial?.map(p => ({ ...p, tanggal_waktu: new Date(p.tanggal_waktu) }))
-                    }
+                    tata_ibadah: tata_ibadah ? { create: tata_ibadah } : undefined,
+                    pokok_doa: pokok_doa ? { create: pokok_doa } : undefined,
+                    jemaat_ultah: jemaat_ultah ? {
+                        create: jemaat_ultah.map(u => ({ ...u, tanggal: new Date(u.tanggal) }))
+                    } : undefined,
+                    jemaat_sakit: jemaat_sakit ? { create: jemaat_sakit } : undefined,
+                    pemulihan: pemulihan ? { create: pemulihan } : undefined,
+                    lansia: lansia ? { create: lansia } : undefined,
+                    info_ibadah: info_ibadah ? {
+                        create: info_ibadah.map(i => ({ ...i, tanggal: new Date(i.tanggal) }))
+                    } : undefined,
+                    pelayanan_sektor: pelayanan_sektor ? { create: pelayanan_sektor } : undefined,
+                    pelayanan_kategorial: pelayanan_kategorial ? {
+                        create: pelayanan_kategorial.map(p => ({ ...p, tanggal_waktu: new Date(p.tanggal_waktu) }))
+                    } : undefined
                 }
             });
         });

@@ -8,9 +8,6 @@ const router = express.Router();
 // Summary route (public)
 router.get('/summary', KeuanganController.getSummary);
 
-// Excel Export (Super Admin Only)
-router.get('/export', authenticateToken, isSuperAdmin, KeuanganController.exportExcel);
-
 // CRUD
 router.get('/', KeuanganController.getAll);
 router.post('/', authenticateToken, isSuperAdmin, KeuanganController.create);
