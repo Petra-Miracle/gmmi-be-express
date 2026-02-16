@@ -1,35 +1,20 @@
-import prisma from '../config/prisma.js';
+import SejarahRepository from '../repositories/sejarah.repository.js';
 
 class SejarahService {
     async getAll() {
-        return await prisma.sejarah.findMany({
-            orderBy: { tanggal_peristiwa: 'asc' }
-        });
+        return await SejarahRepository.findAll();
     }
 
     async create(data) {
-        return await prisma.sejarah.create({
-            data: {
-                ...data,
-                tanggal_peristiwa: data.tanggal_peristiwa ? new Date(data.tanggal_peristiwa) : undefined
-            }
-        });
+        return await SejarahRepository.create(data);
     }
 
     async update(id, data) {
-        return await prisma.sejarah.update({
-            where: { id: parseInt(id) },
-            data: {
-                ...data,
-                tanggal_peristiwa: data.tanggal_peristiwa ? new Date(data.tanggal_peristiwa) : undefined
-            }
-        });
+        return await SejarahRepository.update(id, data);
     }
 
     async delete(id) {
-        return await prisma.sejarah.delete({
-            where: { id: parseInt(id) }
-        });
+        return await SejarahRepository.delete(id);
     }
 }
 

@@ -1,4 +1,5 @@
-import prisma from '../config/prisma.js';
+import WartaRepository from '../repositories/warta.repository.js';
+import PewartaanRepository from '../repositories/pewartaan.repository.js';
 
 class WartaService {
     async getAll(pagination = {}) {
@@ -6,7 +7,7 @@ class WartaService {
         const skip = (page - 1) * limit;
 
         const [data, totalItems] = await Promise.all([
-            prisma.pewartaan.findMany({
+            PewartaanRepository.findAll({
                 where: { status: 'approved' },
                 select: {
                     id: true,
@@ -20,14 +21,10 @@ class WartaService {
                     created_at: true,
                     updated_at: true
                 },
-                orderBy: [
-                    { tanggal_ibadah: 'desc' },
-                    { created_at: 'desc' }
-                ],
                 take: limit,
                 skip: skip
             }),
-            prisma.pewartaan.count({
+            PewartaanRepository.count({
                 where: { status: 'approved' }
             })
         ]);
@@ -41,38 +38,19 @@ class WartaService {
     }
 
     async create(data) {
-        // Note: 'warta' might be a separate table or just another status in pewartaan
-        // Based on legacy code, it seems there's a 'warta' table
-        return await prisma.warta.create({
-            data: {
-                ...data,
-                tanggal: data.tanggal ? new Date(data.tanggal) : new Date(),
-                files: data.files || []
-            }
-        });
+        return await WartaRepository.create(data);
     }
 
     async update(id, data) {
-        return await prisma.warta.update({
-            where: { id: parseInt(id) },
-            data: {
-                ...data,
-                tanggal: data.tanggal ? new Date(data.tanggal) : undefined
-            }
-        });
+        return await WartaRepository.update(id, data);
     }
 
     async delete(id) {
-        return await prisma.warta.delete({
-            where: { id: parseInt(id) }
-        });
+        return await WartaRepository.delete(id);
     }
 
     async updateStatus(id, status) {
-        return await prisma.warta.update({
-            where: { id: parseInt(id) },
-            data: { status }
-        });
+        return await WartaRepository.updateStatus(id, status);
     }
 }
 

@@ -1,4 +1,4 @@
-import prisma from '../config/prisma.js';
+import KeuanganRepository from '../repositories/keuangan.repository.js';
 
 class KeuanganService {
     async getAll(filters = {}) {
@@ -10,7 +10,7 @@ class KeuanganService {
             if (endDate) where.tanggal.lte = new Date(endDate);
         }
 
-        const data = await prisma.finance.findMany({
+        const data = await KeuanganRepository.findMany({
             where,
             orderBy: [
                 { tanggal: 'asc' },
@@ -23,7 +23,7 @@ class KeuanganService {
         let saldoBank = 0;
 
         if (startDate) {
-            const prev = await prisma.finance.aggregate({
+            const prev = await KeuanganRepository.aggregate({
                 where: { tanggal: { lt: new Date(startDate) } },
                 _sum: { kas_penerimaan: true, kas_pengeluaran: true, bank_debit: true, bank_kredit: true }
             });
@@ -47,7 +47,7 @@ class KeuanganService {
     }
 
     async getSummary() {
-        const summary = await prisma.finance.aggregate({
+        const summary = await KeuanganRepository.aggregate({
             _sum: { kas_penerimaan: true, kas_pengeluaran: true, bank_debit: true, bank_kredit: true }
         });
 
@@ -68,34 +68,15 @@ class KeuanganService {
     }
 
     async create(data) {
-        return await prisma.finance.create({
-            data: {
-                ...data,
-                tanggal: new Date(data.tanggal),
-                kas_penerimaan: Number(data.kas_penerimaan || 0),
-                kas_pengeluaran: Number(data.kas_pengeluaran || 0),
-                bank_debit: Number(data.bank_debit || 0),
-                bank_kredit: Number(data.bank_kredit || 0)
-            }
-        });
+        return await KeuanganRepository.create(data);
     }
 
     async update(id, data) {
-        return await prisma.finance.update({
-            where: { id: parseInt(id) },
-            data: {
-                ...data,
-                tanggal: data.tanggal ? new Date(data.tanggal) : undefined,
-                kas_penerimaan: data.kas_penerimaan !== undefined ? Number(data.kas_penerimaan) : undefined,
-                kas_pengeluaran: data.kas_pengeluaran !== undefined ? Number(data.kas_pengeluaran) : undefined,
-                bank_debit: data.bank_debit !== undefined ? Number(data.bank_debit) : undefined,
-                bank_kredit: data.bank_kredit !== undefined ? Number(data.bank_kredit) : undefined
-            }
-        });
+        return await KeuanganRepository.update(id, data);
     }
 
     async delete(id) {
-        return await prisma.finance.delete({ where: { id: parseInt(id) } });
+        return await KeuanganRepository.delete(id);
     }
 }
 

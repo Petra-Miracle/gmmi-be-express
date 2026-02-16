@@ -1,36 +1,26 @@
-import prisma from '../config/prisma.js';
+import PekerjaanRepository from '../repositories/pekerjaan.repository.js';
+import JemaatRepository from '../repositories/jemaat.repository.js';
 
 class PekerjaanService {
     async getAll() {
-        return await prisma.pekerjaan.findMany({
-            select: { id: true, nama_pekerjaan: true },
-            orderBy: { nama_pekerjaan: 'asc' }
-        });
+        return await PekerjaanRepository.findAll();
     }
 
     async getById(id) {
-        return await prisma.pekerjaan.findUnique({
-            where: { id: parseInt(id) },
-            select: { id: true, nama_pekerjaan: true }
-        });
+        return await PekerjaanRepository.findById(id);
     }
 
     async create(nama) {
-        return await prisma.pekerjaan.create({
-            data: { nama_pekerjaan: nama.trim() }
-        });
+        return await PekerjaanRepository.create(nama);
     }
 
     async update(id, nama) {
-        return await prisma.pekerjaan.update({
-            where: { id: parseInt(id) },
-            data: { nama_pekerjaan: nama.trim() }
-        });
+        return await PekerjaanRepository.update(id, nama);
     }
 
     async delete(id) {
         // Check usage
-        const usage = await prisma.jemaat.count({
+        const usage = await JemaatRepository.count({
             where: { pekerjaan_id: parseInt(id) }
         });
 
@@ -38,9 +28,7 @@ class PekerjaanService {
             throw new Error('Pekerjaan tidak dapat dihapus karena sedang digunakan oleh jemaat');
         }
 
-        return await prisma.pekerjaan.delete({
-            where: { id: parseInt(id) }
-        });
+        return await PekerjaanRepository.delete(id);
     }
 }
 

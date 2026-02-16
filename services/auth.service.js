@@ -1,3 +1,4 @@
+import AdminRepository from '../repositories/admin.repository.js';
 import AdminService from './admin.service.js';
 import jwt from 'jsonwebtoken';
 
@@ -28,16 +29,12 @@ class AuthService {
     }
 
     async getMe(userId) {
-        // Current logic uses AdminService to get all admins then filtering
-        // In a mature architecture, this would be a direct repository call
-        const admins = await AdminService.getAllAdmins();
-        const admin = admins.find(a => a.id === userId);
+        const admin = await AdminRepository.findById(userId);
 
         if (!admin) {
             throw new Error('User tidak ditemukan.');
         }
 
-        // Note: AdminService.getAllAdmins might be stripping sensitive info
         return admin;
     }
 }

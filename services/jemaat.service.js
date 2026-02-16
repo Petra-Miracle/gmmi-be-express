@@ -1,12 +1,11 @@
-import prisma from '../config/prisma.js';
+import JemaatRepository from '../repositories/jemaat.repository.js';
 
 class JemaatService {
     async getAllJemaat(filters = {}) {
         const { sektor_id, pendidikan, kategorial, search } = filters;
 
-        return await prisma.jemaat.findMany({
+        return await JemaatRepository.findAll({
             where: {
-                deleted_at: null,
                 sektor_id: sektor_id ? parseInt(sektor_id) : undefined,
                 pendidikan_terakhir: pendidikan || undefined,
                 kategorial: kategorial ? { contains: kategorial, mode: 'insensitive' } : undefined,
@@ -15,125 +14,45 @@ class JemaatService {
             include: {
                 sectors: true,
                 jemaat_sakramen: true
-            },
-            orderBy: {
-                nama: 'asc'
             }
         });
     }
 
     async createJemaat(data, userId, userName) {
-        const {
-            nama, sektor_id, pendidikan_terakhir, pekerjaan,
-            kategorial, keterangan, sakramen,
-            jenis_kelamin, tempat_lahir, tanggal_lahir
-        } = data;
-
-        return await prisma.$transaction(async (tx) => {
-            const jemaat = await tx.jemaat.create({
-                data: {
-                    nama,
-                    sektor_id: parseInt(sektor_id),
-                    pendidikan_terakhir,
-                    pekerjaan,
-                    kategorial,
-                    keterangan,
-                    jenis_kelamin,
-                    tempat_lahir,
-                    tanggal_lahir: tanggal_lahir ? new Date(tanggal_lahir) : null,
-                    jemaat_sakramen: {
-                        create: {
-                            bpts: sakramen?.bpts || false,
-                            sidi: sakramen?.sidi || false,
-                            nikah: sakramen?.nikah || false,
-                            meninggal: sakramen?.meninggal || false
-                        }
-                    }
-                }
-            });
-
-            return jemaat;
-        });
+        return await JemaatRepository.create(data);
     }
 
     async updateJemaat(id, data, userId, userName) {
-        const {
-            nama, sektor_id, pendidikan_terakhir, pekerjaan,
-            kategorial, keterangan, sakramen,
-            jenis_kelamin, tempat_lahir, tanggal_lahir
-        } = data;
-
-        return await prisma.$transaction(async (tx) => {
-            await tx.jemaat.update({
-                where: { id: parseInt(id) },
-                data: {
-                    nama,
-                    sektor_id: parseInt(sektor_id),
-                    pendidikan_terakhir,
-                    pekerjaan,
-                    kategorial,
-                    keterangan,
-                    jenis_kelamin,
-                    tempat_lahir,
-                    tanggal_lahir: tanggal_lahir ? new Date(tanggal_lahir) : null,
-                    jemaat_sakramen: {
-                        upsert: {
-                            create: {
-                                bpts: sakramen?.bpts || false,
-                                sidi: sakramen?.sidi || false,
-                                nikah: sakramen?.nikah || false,
-                                meninggal: sakramen?.meninggal || false
-                            },
-                            update: {
-                                bpts: sakramen?.bpts,
-                                sidi: sakramen?.sidi,
-                                nikah: sakramen?.nikah,
-                                meninggal: sakramen?.meninggal
-                            }
-                        }
-                    }
-                }
-            });
-        });
+        return await JemaatRepository.update(id, data);
     }
 
     async softDeleteJemaat(id) {
-        return await prisma.jemaat.update({
-            where: { id: parseInt(id) },
-            data: { deleted_at: new Date() }
-        });
+        return await JemaatRepository.softDelete(id);
     }
 
     // Sector Logic
     async getAllSectors() {
-        return await prisma.sectors.findMany({
-            orderBy: { nama_sektor: 'asc' }
-        });
+        return await JemaatRepository.findAllSectors();
     }
 
     async createSector(data) {
-        return await prisma.sectors.create({ data });
+        return await JemaatRepository.createSector(data);
     }
 
     async updateSector(id, data) {
-        return await prisma.sectors.update({
-            where: { id: parseInt(id) },
-            data
-        });
+        return await JemaatRepository.updateSector(id, data);
     }
 
     async deleteSector(id) {
-        const membersCount = await prisma.jemaat.count({
-            where: { sektor_id: parseInt(id), deleted_at: null }
+        const membersCount = await JemaatRepository.count({
+            where: { sektor_id: parseInt(id) }
         });
 
         if (membersCount > 0) {
             throw new Error('Sektor tidak dapat dihapus karena masih memiliki jemaat aktif');
         }
 
-        return await prisma.sectors.delete({
-            where: { id: parseInt(id) }
-        });
+        return await JemaatRepository.deleteSector(id);
     }
 }
 

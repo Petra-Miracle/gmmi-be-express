@@ -1,33 +1,20 @@
-import prisma from '../config/prisma.js';
+import PengumumanRepository from '../repositories/pengumuman.repository.js';
 
 class PengumumanService {
     async getAll() {
-        return await prisma.announcements.findMany({
-            orderBy: { created_at: 'desc' }
-        });
+        return await PengumumanRepository.findAll();
     }
 
     async create(data, userId) {
-        return await prisma.announcements.create({
-            data: {
-                ...data,
-                status: data.status || 'draft',
-                created_by: userId
-            }
-        });
+        return await PengumumanRepository.create(data, userId);
     }
 
     async update(id, data) {
-        return await prisma.announcements.update({
-            where: { id: parseInt(id) },
-            data
-        });
+        return await PengumumanRepository.update(id, data);
     }
 
     async delete(id) {
-        return await prisma.announcements.delete({
-            where: { id: parseInt(id) }
-        });
+        return await PengumumanRepository.delete(id);
     }
 }
 

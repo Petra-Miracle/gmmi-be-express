@@ -1,7 +1,7 @@
-import pool from '../config/db.js';
+import ProgramService from '../services/program.service.js';
 import ExcelJS from 'exceljs';
 import { logActivity } from '../utils/activityLogger.js';
-import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType, TextRun, AlignmentType, HeadingLevel, ImageRun } from 'docx';
+import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType, TextRun, AlignmentType, ImageRun } from 'docx';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -13,25 +13,10 @@ class ProgramController {
     // Get statistics for dashboard
     async getStats(req, res) {
         try {
-            const totalQuery = 'SELECT COUNT(*) as total FROM program_kegiatan_gereja';
-            const byBidangQuery = `
-                SELECT bidang, COUNT(*) as count 
-                FROM program_kegiatan_gereja 
-                GROUP BY bidang 
-                ORDER BY count DESC
-            `;
-
-            const [totalResult, byBidangResult] = await Promise.all([
-                pool.query(totalQuery),
-                pool.query(byBidangQuery)
-            ]);
-
+            const stats = await ProgramService.getStats();
             return res.status(200).json({
                 success: true,
-                data: {
-                    total: parseInt(totalResult.rows[0].total),
-                    byBidang: byBidangResult.rows
-                }
+                data: stats
             });
         } catch (error) {
             console.error('Error in ProgramController.getStats:', error);
@@ -42,27 +27,8 @@ class ProgramController {
     // Get all programs with optional filtering
     async getAll(req, res) {
         try {
-            const { bidang, startDate, endDate } = req.query;
-            let query = 'SELECT * FROM program_kegiatan_gereja WHERE 1=1';
-            const params = [];
-            let paramIndex = 1;
-
-            if (bidang) {
-                query += ` AND bidang = $${paramIndex}`;
-                params.push(bidang);
-                paramIndex++;
-            }
-
-            if (startDate && endDate) {
-                query += ` AND created_at BETWEEN $${paramIndex} AND $${paramIndex + 1}`;
-                params.push(startDate, endDate);
-                paramIndex += 2;
-            }
-
-            query += ' ORDER BY created_at DESC';
-
-            const result = await pool.query(query, params);
-            return res.status(200).json(result.rows);
+            const result = await ProgramService.getAll(req.query);
+            return res.status(200).json(result);
         } catch (error) {
             console.error('Error in ProgramController.getAll:', error);
             return res.status(500).json({ success: false, message: 'Gagal mengambil data program' });
@@ -72,7 +38,7 @@ class ProgramController {
     // Create new program
     async create(req, res) {
         try {
-            const { bidang, sub_bidang, nama_program, jenis_kegiatan, volume, waktu_pelaksanaan, rencana_biaya, keterangan } = req.body;
+            const { bidang, sub_bidang, nama_program, jenis_kegiatan, waktu_pelaksanaan } = req.body;
 
             // Validation
             if (!bidang || !nama_program || !jenis_kegiatan || !waktu_pelaksanaan) {
@@ -90,32 +56,14 @@ class ProgramController {
                 });
             }
 
-            const query = `
-                INSERT INTO program_kegiatan_gereja 
-                (bidang, sub_bidang, nama_program, jenis_kegiatan, volume, waktu_pelaksanaan, rencana_biaya, keterangan) 
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
-                RETURNING *
-            `;
-
-            const values = [
-                bidang,
-                sub_bidang || null,
-                nama_program,
-                jenis_kegiatan,
-                volume || 1,
-                waktu_pelaksanaan,
-                rencana_biaya || 0,
-                keterangan || null
-            ];
-
-            const result = await pool.query(query, values);
+            const program = await ProgramService.create(req.body);
 
             await logActivity(req.user?.id, req.user?.nama, 'TAMBAH', 'PROGRAM', `Menambahkan program baru: ${nama_program}`);
 
             return res.status(201).json({
                 success: true,
                 message: 'Program berhasil ditambahkan',
-                data: result.rows[0]
+                data: program
             });
         } catch (error) {
             console.error('Error in ProgramController.create:', error);
@@ -126,24 +74,12 @@ class ProgramController {
     // Export to Excel
     async exportExcel(req, res) {
         try {
-            const { bidang } = req.query;
-            let query = 'SELECT * FROM program_kegiatan_gereja';
-            const params = [];
-
-            if (bidang) {
-                query += ' WHERE bidang = $1';
-                params.push(bidang);
-            }
-            query += ' ORDER BY bidang ASC, created_at DESC';
-
-            const result = await pool.query(query, params);
-            const programs = result.rows;
+            const programs = await ProgramService.getAll(req.query);
 
             const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet('Program Kerja');
 
             // Add Header Section
-            // 1. Logo
             const logoPath = path.join(__dirname, '../assets/logo-gmmi.png');
             if (fs.existsSync(logoPath)) {
                 const logoId = workbook.addImage({
@@ -153,7 +89,6 @@ class ProgramController {
                 worksheet.addImage(logoId, 'A1:A3');
             }
 
-            // 2. Title
             const currentYear = new Date().getFullYear();
             const title = `PROGRAM dan KEGIATAN GEREJA MASEHI MUSAFIR INDONESIA JEMAAT Baitesda, TAHUN ${currentYear}`;
 
@@ -163,17 +98,15 @@ class ProgramController {
             titleCell.font = { bold: true, size: 14, color: { argb: 'FF000000' } };
             titleCell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
 
-            // Spacer row
             worksheet.addRow([]);
 
-            // 3. Table Headers (Now at row 5)
             const headerRow = worksheet.addRow(['No', 'Bidang', 'Sub Bidang', 'Nama Program', 'Jenis Kegiatan', 'Volume', 'Waktu', 'Biaya (Rp)', 'Keterangan']);
             headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
             headerRow.eachCell((cell) => {
                 cell.fill = {
                     type: 'pattern',
                     pattern: 'solid',
-                    fgColor: { argb: 'FF1E3A8A' } // GMMI Navy
+                    fgColor: { argb: 'FF1E3A8A' }
                 };
                 cell.alignment = { vertical: 'middle', horizontal: 'center' };
                 cell.border = {
@@ -216,7 +149,7 @@ class ProgramController {
                         bottom: { style: 'thin' },
                         right: { style: 'thin' }
                     };
-                    if (cell.col === 8) { // Biaya column
+                    if (cell.col === 8) {
                         cell.numFmt = '#,##0';
                     }
                 });
@@ -236,23 +169,11 @@ class ProgramController {
     // Export to Word
     async exportWord(req, res) {
         try {
-            const { bidang } = req.query;
-            let query = 'SELECT * FROM program_kegiatan_gereja';
-            const params = [];
-
-            if (bidang) {
-                query += ' WHERE bidang = $1';
-                params.push(bidang);
-            }
-            query += ' ORDER BY bidang ASC, created_at DESC';
-
-            const result = await pool.query(query, params);
-            const programs = result.rows;
+            const programs = await ProgramService.getAll(req.query);
 
             const currentYear = new Date().getFullYear();
             const titleTitle = `PROGRAM dan KEGIATAN GEREJA MASEHI MUSAFIR INDONESIA JEMAAT Baitesda, TAHUN ${currentYear}`;
 
-            // Define table rows
             const tableRows = [
                 new TableRow({
                     children: [
@@ -290,7 +211,6 @@ class ProgramController {
             const logoPath = path.join(__dirname, '../assets/logo-gmmi.png');
             let children = [];
 
-            // Header Section (using a table for logo on left, text on right)
             const headerCells = [];
 
             if (fs.existsSync(logoPath)) {
@@ -325,7 +245,7 @@ class ProgramController {
                                 new TextRun({
                                     text: titleTitle,
                                     bold: true,
-                                    size: 28, // Heading size equivalent
+                                    size: 28,
                                 }),
                             ],
                             alignment: AlignmentType.CENTER,
@@ -349,7 +269,7 @@ class ProgramController {
                 })
             );
 
-            children.push(new Paragraph({ text: "" })); // Spacer
+            children.push(new Paragraph({ text: "" }));
 
             children.push(
                 new Table({
@@ -375,26 +295,18 @@ class ProgramController {
             res.status(500).json({ success: false, message: 'Gagal export Word' });
         }
     }
+
     // Delete program
     async delete(req, res) {
         try {
             const { id } = req.params;
-            const query = 'DELETE FROM program_kegiatan_gereja WHERE id = $1 RETURNING *';
-            const result = await pool.query(query, [id]);
-
-            if (result.rowCount === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Program tidak ditemukan'
-                });
-            }
+            await ProgramService.delete(id);
 
             await logActivity(req.user?.id, req.user?.nama, 'HAPUS', 'PROGRAM', `Menghapus program ID: ${id}`);
 
             return res.status(200).json({
                 success: true,
-                message: 'Program berhasil dihapus',
-                data: result.rows[0]
+                message: 'Program berhasil dihapus'
             });
         } catch (error) {
             console.error('Error in ProgramController.delete:', error);

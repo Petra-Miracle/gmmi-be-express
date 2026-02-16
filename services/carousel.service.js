@@ -1,50 +1,24 @@
-import prisma from '../config/prisma.js';
+import CarouselRepository from '../repositories/carousel.repository.js';
 
 class CarouselService {
     async getAllActive() {
-        return await prisma.carousel_slides.findMany({
-            where: { is_active: true },
-            orderBy: [
-                { order_index: 'asc' },
-                { created_at: 'desc' }
-            ]
-        });
+        return await CarouselRepository.findAllActive();
     }
 
     async getAllAdmin() {
-        return await prisma.carousel_slides.findMany({
-            orderBy: [
-                { order_index: 'asc' },
-                { created_at: 'desc' }
-            ]
-        });
+        return await CarouselRepository.findAll();
     }
 
     async create(data) {
-        return await prisma.carousel_slides.create({
-            data: {
-                ...data,
-                order_index: parseInt(data.order_index) || 0,
-                is_active: data.is_active === 'true' || data.is_active === true
-            }
-        });
+        return await CarouselRepository.create(data);
     }
 
     async update(id, data) {
-        return await prisma.carousel_slides.update({
-            where: { id: parseInt(id) },
-            data: {
-                ...data,
-                order_index: data.order_index !== undefined ? parseInt(data.order_index) : undefined,
-                is_active: data.is_active !== undefined ? (data.is_active === 'true' || data.is_active === true) : undefined
-            }
-        });
+        return await CarouselRepository.update(id, data);
     }
 
     async delete(id) {
-        return await prisma.carousel_slides.delete({
-            where: { id: parseInt(id) }
-        });
+        return await CarouselRepository.delete(id);
     }
 }
 

@@ -1,41 +1,24 @@
-import prisma from '../config/prisma.js';
+import RenunganRepository from '../repositories/renungan.repository.js';
 
 class RenunganService {
     async getAll() {
-        return await prisma.renungan.findMany({
-            orderBy: { tanggal: 'desc' }
-        });
+        return await RenunganRepository.findAll();
     }
 
     async getById(id) {
-        return await prisma.renungan.findUnique({
-            where: { id: parseInt(id) }
-        });
+        return await RenunganRepository.findById(id);
     }
 
     async create(data) {
-        return await prisma.renungan.create({
-            data: {
-                ...data,
-                tanggal: data.tanggal ? new Date(data.tanggal) : new Date()
-            }
-        });
+        return await RenunganRepository.create(data);
     }
 
     async update(id, data) {
-        return await prisma.renungan.update({
-            where: { id: parseInt(id) },
-            data: {
-                ...data,
-                tanggal: data.tanggal ? new Date(data.tanggal) : undefined
-            }
-        });
+        return await RenunganRepository.update(id, data);
     }
 
     async delete(id) {
-        return await prisma.renungan.delete({
-            where: { id: parseInt(id) }
-        });
+        return await RenunganRepository.delete(id);
     }
 }
 
