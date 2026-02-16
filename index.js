@@ -23,10 +23,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Security: Helmet adds secure HTTP headers
-// app.use(helmet());
+app.use(helmet());
 app.use(
   cors({
-    origin: "*", // Allow all origins - adjust for production
+    origin: "*", // Recommended: set to specific domain in production
   }),
 );
 app.use(express.json());
